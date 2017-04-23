@@ -2,57 +2,104 @@
 <html ng-app="TrafficWiseApp">
 <head>
     <meta charset="utf-8">
-    <title>Traffic Wise</title>
+    <title>Traffi-Mago</title>
     <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
     <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
     <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-cookies.js"></script>
 </head>
 <body>
 <div ng-controller="HomeController">
-    <h1>Bienvenidos!</h1>
-    <div ng-if="status=='none'">
-        <button ng-click="enableLocation()">Habilitar Localizacion</button>
-    </div>
-    <div ng-if="status=='gpsApproved'">
-        <form ng-submit="identifyUser()">
-            <p>Tu Correo: <input ng-model="form.email" type="email" placeholder="ex: alguien@yahoo.com" />
-            <input type="submit"/ value="Identificarse"></p>
-        </form>
-    </div>
-    <div ng-if="status=='userIdentified'">
-        <button ng-click="arrivedAtTraffic()">Llegado a la Cola</button>
-    </div>
-    <div ng-if="status=='waiting'">
-        <button ng-click="trafficMoving()">Cola Moviendo</button>
-    </div>
-    <div ng-if="status=='moving'">
-        Gracias!
-    </div>
-    <div ng-if="status!='none'">
-        <button ng-click="setStatus('none')">Empezar de Cero</button>
+    <div class="container">
+        <div class="jumbotron">
+            <h1>Traffi-Mago!</h1>
+        </div>
+        <div class="well">
+            <p>JUNTOS podemos ser mas listo del trafico! Con los datos generados por esta app, podemos saber mas del trafico. Por ejemplo, sabremos...
+                <ul>
+                    <li>Cuando ya va a mover la cola</li>
+                    <li>A que hora mejor llegamos a la cola</li>
+                    <li>Otros noticias de la cola</li>
+                </ul>
+            </p>
+        </div>
+        <div class="row">
+            <div ng-if="status=='none'">
+                <h3>Habilitar Localization</h3>
+                Nececitamos su ubicacion para poder calcular calcular la espera juntos con los datos de los demas conductores. Favor, oprima el boton abajo para habilitar localizacion.
+                <p><button class='btn btn-lg btn-success' ng-click="enableLocation()">Habilitar Localizacion</button></p>
+            </div>
+            <div ng-if="status=='gpsApproved'">
+                <h3>Identificarse</h3>
+                <form ng-submit="identifyUser()">
+                    <div class="form-group">
+                        <label for="emailInput">Tu Correo:</label>
+                        <input id="emailInput" class="form-control input-lg" ng-model="form.email" type="email" placeholder="ex: alguien@yahoo.com" />
+                        <input class='btn btn-lg btn-info' type="submit"/ value="Identificarse"></p>
+                    </div>
+                </form>
+            </div>
+            <div ng-if="status=='userIdentified'">
+                <h3>Diganos Cuando Haya Llegado a la Cola</h3>
+                <button class='btn btn-lg btn-warning' ng-click="arrivedAtTraffic()">Llegado a la Cola</button>
+            </div>
+            <div ng-if="status=='waiting'">
+                <h3>Diganos Cuando Ya Mueva la Cola</h3>
+                <ul ng-repeat="w in waiting">
+                    <li>{{name}} at {{timestamp}}</li>
+                </ul>
+                <button class='btn btn-lg btn-warning' ng-click="trafficMoving()">Cola Moviendo</button>
+            </div>
+            <div ng-if="status!='none'">
+                <button class='btn pull-right' ng-click="setStatus('none')">Empezar de Cero</button>
+            </div>
+            <div ng-if="status=='moving'">
+                <h3>Nos Vemos</h3>
+                Gracias!
+            </div>
+        </div>
     </div>
 </div>
 
 <script>
     var app = angular.module('TrafficWiseApp', ['ngCookies']);
     app.controller('HomeController', function($scope, $http, $cookies) {
+        function buildCoords(position){
+            return {
+                latitude: position.coords.latitude,
+                longitude: position.coords.longitude,
+                email: $scope.getEmail()
+            }
+        }
+        function populate10Waiting(){
+            $http.get('/api/waiting').then(function(response){
+                $scope.waiting = response.data;
+            });
+        }
+        $scope.waiting = [];
+
         $scope.arrivedAtTraffic = function(){
             navigator.geolocation.getCurrentPosition(function(position) {
                 $scope.status = "waiting";
-                position.email = $scope.email;
-                $http.post('/api/waiting', position.coords)
-                .then(function(){
-                    $scope.waitingLoggedAt = new Date();
-                });
+                var coords = buildCoords(position);
+                $http.post('/api/waiting', coords)
+                    .then(function(){
+                        $scope.waitingLoggedAt = new Date();
+                        populate10Waiting();
+                    })
+                    .catch(function(err){
+                        console.log(err);
+                    });
             });
         };
         $scope.trafficMoving = function(){
             navigator.geolocation.getCurrentPosition(function(position){
                 $scope.status = "moving";
-                position.email = $scope.getEmail();
-                $http.post('/api/moving', position.coords)
+                var coords = buildCoords(position);
+                $http.post('/api/moving', coords)
                     .then(function(){
                         $scope.movingLoggedAt = new Date();
+                    }).catch(function(err){
+                        console.log(err);
                     });
             });
         };

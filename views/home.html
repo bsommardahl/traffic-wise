@@ -33,29 +33,42 @@
                 <h3>Identificarse</h3>
                 <form ng-submit="identifyUser()">
                     <div class="form-group">
-                        <label for="emailInput">Tu Correo:</label>
+                        <label for="emailInput">Su Correo:</label>
                         <input id="emailInput" class="form-control input-lg" ng-model="form.email" type="email" placeholder="ex: alguien@yahoo.com" />
-                        <input class='btn btn-lg btn-info' type="submit"/ value="Identificarse"></p>
+                        <div class="alert alert-info">Prometemos no usar su correo por algo aparte de esta application. Su privacidad es seguro aqui.</div>
+                        <div class='well'>
+                            <button class='btn pull-right' ng-click="resetStatus()">Empezar de Cero</button>
+                            <input class='btn btn-lg btn-info' type="submit"/ value="Identificarse">
+                        </div>
                     </div>
                 </form>
             </div>
             <div ng-if="status=='userIdentified'">
                 <h3>Diganos Cuando Haya Llegado a la Cola</h3>
-                <button class='btn btn-lg btn-warning' ng-click="arrivedAtTraffic()">Estoy Parado en la Cola</button>
+                <div class='alert alert-info'>Aqui tenemos planeado una lista de las hora aproximadas que va a pasar la cola por su lado. Favor, sigue usando el app y espera nueva funcionalidades.</div>
+                <div class='well'>
+                    <button class='btn pull-right' ng-click="resetStatus()">Empezar de Cero</button>
+                    <button class='btn btn-lg btn-warning' ng-click="arrivedAtTraffic()">Estoy Parado en la Cola</button>
+                </div>
             </div>
             <div ng-if="status=='waiting'">
                 <h3>Diganos Cuando Ya Mueva la Cola</h3>
                 <div class='alert alert-info'>Estamos trabajando en la calculacion de cuando ya va a mover la cola. Favor, sigue usando el app y espera nueva funcionalidades.</div>
-                <button class='btn btn-lg btn-success' ng-click="trafficMoving()">La Cola ya Esta Moviendo</button>
+                <div class='well'>
+                    <button class='btn pull-right' ng-click="resetStatus()">Empezar de Cero</button>
+                    <button class='btn btn-lg btn-success' ng-click="trafficMoving()">La Cola ya Esta Moviendo</button>
+                </div>
             </div>
             <div ng-if="status=='moving'">
                 <h3>Nos Vemos</h3>
                 <div class="alert alert-success">Gracias! Estamos trabajando para mejorar esta app. Por favor, siga ustando la app y esperando nuevas funcionalidades.</div>
+                <div class='well'>
+                    <button class='btn' ng-click="resetStatus()">Empezar de Cero</button>
+                </div>
             </div>
-            <div ng-if="status!='none'">
-                <button class='btn pull-right' ng-click="resetStatus()">Empezar de Cero</button>
-            </div>
-
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-body">Esta app esta hecho por residentes de Santa Ana, FM por el simple fin de poder llegar a Tegucigalpa y de regreso con mas facilidad mientras el relajo de trafico que ocupa nuesta carreterra.</div>
         </div>
     </div>
 </div>

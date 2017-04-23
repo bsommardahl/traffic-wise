@@ -2,7 +2,7 @@
 <html ng-app="TrafficWiseApp">
 <head>
     <meta charset="utf-8">
-    <title>Traffi-Mago</title>
+    <title>Basta Trafico</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
     <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
@@ -11,16 +11,8 @@
 <body>
 <div ng-controller="HomeController">
     <div class="container-fluid">
-        <div class="jumbotron">
-            <h1>Traffi-Mago!</h1>
-            <p>JUNTOS podemos ser mas listo del trafico! Con los datos generados por esta app, podemos saber mas del trafico. Por ejemplo, sabremos...
-                <ul>
-                    <li>Cuando ya va a mover la cola</li>
-                    <li>A que hora mejor llegamos a la cola</li>
-                    <li>Otros noticias de la cola</li>
-                </ul>
-            </p>
-        </div>
+        <img src='/logo' class="img-responsive"/>
+
         <div class="panel panel-default"><div class="panel-body">
             <div ng-if="status=='none'">
                 <h3>Habilitar Localization</h3>
@@ -59,7 +51,17 @@
             </div>
         </div>
         <div class="panel panel-footer">
-            <div class="panel-body">Esta app esta hecho por residentes de Santa Ana, FM por el simple fin de poder llegar a Tegucigalpa y de regreso con mas facilidad mientras el relajo de trafico que ocupa nuesta carreterra.</div>
+            <div class="panel-body">
+                <h3>Mas Info</h3>
+                <p>Esta app esta construida por <strong>residentes de Santa Ana, F.M.</strong> por el simple fin de poder llegar a Tegucigalpa y de regreso con mas facilidad mientras el relajo de trafico que ocupa nuesta carreterra.</p>
+                <p>JUNTOS podemos ser mas listo del trafico! Con los datos generados por esta app, podemos saber mas del trafico. Por ejemplo, sabremos...
+                    <ul>
+                        <li>Cuando ya va a mover la cola</li>
+                        <li>A que hora mejor llegamos a la cola</li>
+                        <li>Otros noticias de la cola</li>
+                    </ul>
+                </p>
+            </div>
         </div></div>
     </div>
 </div>

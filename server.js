@@ -10,6 +10,9 @@ app.use(bodyParser.json());
 app.get('/', function (req, res) {
   res.sendFile(path.join(__dirname + '/views/home.html'));
 });
+app.get('/logo', function (req, res) {
+  res.sendFile(path.join(__dirname + '/assets/logo.png'));
+});
 app.get('/api/prediction', function(req, res){
     var coords = { latitude: req.query.lat, longitude: req.query.lng };
     traffic.getPrediction(coords).then(function(results){

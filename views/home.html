@@ -70,11 +70,6 @@
                 email: $scope.getEmail()
             }
         }
-        function populate10Waiting(){
-            $http.get('/api/waiting').then(function(response){
-                $scope.waiting = response.data;
-            });
-        }
         $scope.waiting = [];
 
         $scope.arrivedAtTraffic = function(){
@@ -84,7 +79,6 @@
                 $http.post('/api/waiting', coords)
                     .then(function(){
                         $scope.waitingLoggedAt = new Date();
-                        populate10Waiting();
                     })
                     .catch(function(err){
                         console.log(err);
@@ -131,7 +125,7 @@
         };
 
         $scope.form = {
-            email: $scope.getEmail() || "none"
+            email: $scope.getEmail()
         };
 
         $scope.resetStatus = function(){

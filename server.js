@@ -10,9 +10,10 @@ app.use(bodyParser.json());
 app.get('/', function (req, res) {
   res.sendFile(path.join(__dirname + '/views/home.html'));
 });
-app.get('/api/waiting', function(req, res){
-    traffic.getWaiting().then(function(waiting){
-        res.send(waiting);
+app.get('/api/prediction', function(req, res){
+    var coords = { latitude: req.query.lat, longitude: req.query.lng };
+    traffic.getPrediction(coords).then(function(results){
+        res.send(results);
     })
     .catch(function(error){
         res.status(500);

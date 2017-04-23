@@ -40,22 +40,21 @@
             </div>
             <div ng-if="status=='userIdentified'">
                 <h3>Diganos Cuando Haya Llegado a la Cola</h3>
-                <button class='btn btn-lg btn-warning' ng-click="arrivedAtTraffic()">Llegado a la Cola</button>
+                <button class='btn btn-lg btn-warning' ng-click="arrivedAtTraffic()">Estoy Parado en la Cola</button>
             </div>
             <div ng-if="status=='waiting'">
                 <h3>Diganos Cuando Ya Mueva la Cola</h3>
-                <ul ng-repeat="w in waiting">
-                    <li>{{name}} at {{timestamp}}</li>
-                </ul>
-                <button class='btn btn-lg btn-warning' ng-click="trafficMoving()">Cola Moviendo</button>
-            </div>
-            <div ng-if="status!='none'">
-                <button class='btn pull-right' ng-click="setStatus('none')">Empezar de Cero</button>
+                <div class='alert alert-info'>Estamos trabajando en la calculacion de cuando ya va a mover la cola. Favor, sigue usando el app y espera nueva funcionalidades.</div>
+                <button class='btn btn-lg btn-success' ng-click="trafficMoving()">La Cola ya Esta Moviendo</button>
             </div>
             <div ng-if="status=='moving'">
                 <h3>Nos Vemos</h3>
-                Gracias!
+                <div class="alert alert-success">Gracias! Estamos trabajando para mejorar esta app. Por favor, siga ustando la app y esperando nuevas funcionalidades.</div>
             </div>
+            <div ng-if="status!='none'">
+                <button class='btn pull-right' ng-click="resetStatus()">Empezar de Cero</button>
+            </div>
+
         </div>
     </div>
 </div>
@@ -106,6 +105,7 @@
         $scope.enableLocation = function(){
             if (navigator.geolocation) {
                 $scope.status = "gpsApproved";
+                $cookies.put("gps", true);
             }
         };
         $scope.identifyUser = function(){
@@ -132,7 +132,14 @@
         $scope.form = {
             email: $scope.getEmail() || "none"
         };
-        $scope.setStatus('none');
+
+        $scope.resetStatus = function(){
+            $scope.setStatus('none');
+            if($cookies.get("gps")) {
+                $scope.status = "gpsApproved";
+            }
+        }
+        $scope.resetStatus();
     });
 </script>
 </body>

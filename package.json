@@ -1,0 +1,25 @@
+{
+  "name": "traffic-wise",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server",
+    "dev": "node server"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bsommardahl/traffic-wise.git"
+  },
+  "author": "Byron Sommardahl <byron@acklenavenue.com> (http://acklenavenue.com)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/bsommardahl/traffic-wise/issues"
+  },
+  "homepage": "https://github.com/bsommardahl/traffic-wise#readme",
+  "dependencies": {
+    "express-handlebars": "^3.0.0",
+    "mongodb": "^2.2.26"
+  }
+}

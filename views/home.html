@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html ng-app="TrafficWiseApp">
+<head>
+    <meta charset="utf-8">
+    <title>Traffic Wise</title>
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-cookies.js"></script>
+</head>
+<body>
+<div ng-controller="HomeController">
+    <h1>Bienvenidos!</h1>
+    <div ng-if="status=='none'">
+        <button ng-click="enableLocation()">Habilitar Localizacion</button>
+    </div>
+    <div ng-if="status=='gpsApproved'">
+        <form ng-submit="identifyUser()">
+            <p>Tu Correo: <input ng-model="form.email" type="email" placeholder="ex: alguien@yahoo.com" />
+            <input type="submit"/ value="Identificarse"></p>
+        </form>
+    </div>
+    <div ng-if="status=='userIdentified'">
+        <button ng-click="arrivedAtTraffic()">Llegado a la Cola</button>
+    </div>
+    <div ng-if="status=='waiting'">
+        <button ng-click="trafficMoving()">Cola Moviendo</button>
+    </div>
+    <div ng-if="status=='moving'">
+        Gracias!
+    </div>
+    <div ng-if="status!='none'">
+        <button ng-click="setStatus('none')">Empezar de Cero</button>
+    </div>
+</div>
+
+<script>
+    var app = angular.module('TrafficWiseApp', ['ngCookies']);
+    app.controller('HomeController', function($scope, $http, $cookies) {
+        $scope.arrivedAtTraffic = function(){
+            navigator.geolocation.getCurrentPosition(function(position) {
+                $scope.status = "waiting";
+                position.email = $scope.email;
+                $http.post('/api/waiting', position.coords)
+                .then(function(){
+                    $scope.waitingLoggedAt = new Date();
+                });
+            });
+        };
+        $scope.trafficMoving = function(){
+            navigator.geolocation.getCurrentPosition(function(position){
+                $scope.status = "moving";
+                position.email = $scope.getEmail();
+                $http.post('/api/moving', position.coords)
+                    .then(function(){
+                        $scope.movingLoggedAt = new Date();
+                    });
+            });
+        };
+        $scope.enableLocation = function(){
+            if (navigator.geolocation) {
+                $scope.status = "gpsApproved";
+            }
+        };
+        $scope.identifyUser = function(){
+            $scope.setEmail($scope.form.email);
+            $scope.setStatus("userIdentified");
+        };
+
+        $scope.getStatus = function(){
+            return $cookies.get("status");
+        };
+        $scope.setStatus = function(status){
+            $scope.status = status;
+            $cookies.put("status", status);
+        };
+
+        $scope.getEmail = function(){
+            return $cookies.get("email");
+        };
+        $scope.setEmail = function(email){
+            $scope.form.email = email;
+            $cookies.put("email", email);
+        };
+
+        $scope.form = {
+            email: $scope.getEmail() || "none"
+        };
+        $scope.setStatus('none');
+    });
+</script>
+</body>
+</html>

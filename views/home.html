@@ -13,8 +13,6 @@
     <div class="container-fluid">
         <div class="jumbotron">
             <h1>Traffi-Mago!</h1>
-        </div>
-        <div class="well">
             <p>JUNTOS podemos ser mas listo del trafico! Con los datos generados por esta app, podemos saber mas del trafico. Por ejemplo, sabremos...
                 <ul>
                     <li>Cuando ya va a mover la cola</li>
@@ -23,7 +21,7 @@
                 </ul>
             </p>
         </div>
-        <div class="row">
+        <div class="panel panel-default"><div class="panel-body">
             <div ng-if="status=='none'">
                 <h3>Habilitar Localization</h3>
                 Nececitamos su ubicacion para poder calcular calcular la espera juntos con los datos de los demas conductores. Favor, oprima el boton abajo para habilitar localizacion.
@@ -31,45 +29,38 @@
             </div>
             <div ng-if="status=='gpsApproved'">
                 <h3>Identificarse</h3>
+                <div class="alert alert-info">Prometemos no usar su correo por algo aparte de esta application. Su privacidad es seguro aqui.</div>
                 <form ng-submit="identifyUser()">
                     <div class="form-group">
                         <label for="emailInput">Su Correo:</label>
-                        <input id="emailInput" class="form-control input-lg" ng-model="form.email" type="email" placeholder="ex: alguien@yahoo.com" />
-                        <div class="alert alert-info">Prometemos no usar su correo por algo aparte de esta application. Su privacidad es seguro aqui.</div>
-                        <div class='well'>
-                            <button class='btn pull-right' ng-click="resetStatus()">Empezar de Cero</button>
-                            <input class='btn btn-lg btn-info' type="submit"/ value="Identificarse">
-                        </div>
+                        <input id="emailInput" class="form-control input-lg" required ng-model="form.email" type="email" placeholder="ex: alguien@yahoo.com" />
+
                     </div>
+                    <button class='btn pull-right' ng-click="resetStatus()">Empezar de Cero</button>
+                    <input class='btn btn-lg btn-info' type="submit"/ value="Identificarse">
                 </form>
             </div>
             <div ng-if="status=='userIdentified'">
                 <h3>Diganos Cuando Haya Llegado a la Cola</h3>
                 <div class='alert alert-info'>Aqui tenemos planeado una lista de las hora aproximadas que va a pasar la cola por su lado. Favor, sigue usando el app y espera nueva funcionalidades.</div>
-                <div class='well'>
-                    <button class='btn pull-right' ng-click="resetStatus()">Empezar de Cero</button>
-                    <button class='btn btn-lg btn-warning' ng-click="arrivedAtTraffic()">Estoy Parado en la Cola</button>
-                </div>
+                <button class='btn pull-right' ng-click="resetStatus()">Empezar de Cero</button>
+                <button class='btn btn-lg btn-warning' ng-click="arrivedAtTraffic()">Estoy Parado en la Cola</button>
             </div>
             <div ng-if="status=='waiting'">
                 <h3>Diganos Cuando Ya Mueva la Cola</h3>
                 <div class='alert alert-info'>Estamos trabajando en la calculacion de cuando ya va a mover la cola. Favor, sigue usando el app y espera nueva funcionalidades.</div>
-                <div class='well'>
-                    <button class='btn pull-right' ng-click="resetStatus()">Empezar de Cero</button>
-                    <button class='btn btn-lg btn-success' ng-click="trafficMoving()">La Cola ya Esta Moviendo</button>
-                </div>
+                <button class='btn pull-right' ng-click="resetStatus()">Empezar de Cero</button>
+                <button class='btn btn-lg btn-success' ng-click="trafficMoving()">La Cola ya Esta Moviendo</button>
             </div>
             <div ng-if="status=='moving'">
                 <h3>Nos Vemos</h3>
                 <div class="alert alert-success">Gracias! Estamos trabajando para mejorar esta app. Por favor, siga ustando la app y esperando nuevas funcionalidades.</div>
-                <div class='well'>
-                    <button class='btn' ng-click="resetStatus()">Empezar de Cero</button>
-                </div>
+                <button class='btn' ng-click="resetStatus()">Empezar de Cero</button>
             </div>
         </div>
-        <div class="panel panel-default">
+        <div class="panel panel-footer">
             <div class="panel-body">Esta app esta hecho por residentes de Santa Ana, FM por el simple fin de poder llegar a Tegucigalpa y de regreso con mas facilidad mientras el relajo de trafico que ocupa nuesta carreterra.</div>
-        </div>
+        </div></div>
     </div>
 </div>
 

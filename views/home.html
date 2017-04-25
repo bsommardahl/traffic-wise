@@ -55,11 +55,14 @@
             </div>
             <div ng-if="status=='waiting'">
                 <h3>Diganos Cuando Se Mueva la Cola</h3>
-                <div class='panel'>Creemos que la cola va a moverse en siguientes horas:
+                <div ng-hide="loadingNextMovements && nextMovements.length > 0">
+                    No habian suficientes datos para calcular las horas de movimiento.
+                </div>
+                <div ng.show="nextMovements.length > 0" class='panel'>Creemos que la cola va a moverse en siguientes horas:
                     <ul ng-repeat="next in nextMovements">
                         <li>{{next.time}}</li>
                     </ul>
-                    <div ng-show="nextMovements.length === 0" style="text-align: center">
+                    <div ng-show="loadingNextMovements" style="text-align: center">
                         Intentando calcular...<br>
                         <img src="https://i1.wp.com/cdnjs.cloudflare.com/ajax/libs/galleriffic/2.0.1/css/loader.gif?zoom=2"/>
                     </div>
@@ -94,6 +97,7 @@
         }
         $scope.waiting = [];
         function getNextMovements(coords){
+            $scope.loadingNextMovements = true;
             $http.get(`/api/average-duration?lng=${coords.longitude}&lat=${coords.latitude}`)
             .then(function(res){
                 var nextMovements = [];
@@ -109,6 +113,7 @@
                 }).map(function(next){
                     return { time: moment(next).local().format("LT") };
                 }).splice(0,3);
+                $scope.loadingNextMovements = false;
             });
         }
         $scope.nextMovements = [];

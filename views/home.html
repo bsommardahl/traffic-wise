@@ -31,6 +31,10 @@
             <div ng-if="status=='started'">
                 <h3>Habilitar Ubicación</h3>
                 <p>Necesitamos su ubicación para poder calcular la espera junto con los datos de los demas conductores. Favor, oprima el botón de abajo para habilitar la ubicación.</p>
+                <div ng-show="gettingLocation" style="text-align: center">
+                    Ubicandole...<br>
+                    <img src="https://i1.wp.com/cdnjs.cloudflare.com/ajax/libs/galleriffic/2.0.1/css/loader.gif?zoom=2"/>
+                </div>
                 <p><button class='btn btn-lg btn-block btn-success' ng-click="enableLocation()">Habilitar Ubicación</button></p>
             </div>
             <div ng-if="status=='gpsApproved'">
@@ -59,6 +63,10 @@
                     <div class='alert alert-error' ng-hide="loadingNextMovements && nextMovements.length > 0">
                         No habian suficientes datos para calcular las horas de movimiento.
                     </div>
+                </div>
+                <div ng-show="gettingLocation" style="text-align: center">
+                        Ubicandole...<br>
+                    <img src="https://i1.wp.com/cdnjs.cloudflare.com/ajax/libs/galleriffic/2.0.1/css/loader.gif?zoom=2"/>
                 </div>
                 <div ng-show="nextMovements.length > 0" class='panel'>Creemos que la cola va a moverse en siguientes horas:
                     <ul ng-repeat="next in nextMovements">
@@ -161,18 +169,23 @@
             $scope.status = "started";
         };
         $scope.enableLocation = function(){
+            $scope.gettingLocation = true;
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
                     function(position) {
+                        $scope.gettingLocation = false;
                         $scope.status = "gpsApproved";
                         $cookies.put("gps", true);
                         console.log(position);
                     },
                     function(error) {
                         console.log(error);
+                        $scope.gettingLocation = false;
                     },
-                    {timeout: 30000, enableHighAccuracy: true, maximumAge: 75000}
-            );
+                    {timeout: 30000, enableHighAccuracy: true, maximumAge: 75000});
+            }
+            else{
+                $scope.gettingLocation = false;
             }
         };
         $scope.identifyUser = function(){

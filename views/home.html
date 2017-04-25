@@ -117,8 +117,14 @@
             });
         }
         $scope.nextMovements = [];
+        function gpsError(error){
+            alert("Error al pedir ubicacion: " + error.message);
+            console.log(error);
+        }
+        var gpsSettings = {maximumAge:60000, timeout:5000, enableHighAccuracy:true};
         $scope.arrivedAtTraffic = function(){
             navigator.geolocation.getCurrentPosition(function(position) {
+
                 $scope.status = "waiting";
                 var coords = buildCoords();
                 $http.post('/api/waiting', coords)
@@ -129,7 +135,7 @@
                     .catch(function(err){
                         console.log(err);
                     });
-            });
+            }, gpsError, gpsSettings);
         };
         $scope.trafficMoving = function(){
             navigator.geolocation.getCurrentPosition(function(position){
@@ -141,7 +147,7 @@
                     }).catch(function(err){
                         console.log(err);
                     });
-            });
+            }, gpsError, gpsSettings);
         };
         $scope.start = function(){
             $scope.status = "started";

@@ -105,6 +105,13 @@
                     <h1>{{ nextMovements[0].time }}</h1>
                     <p>(aproximado)</p>
                 </div>
+                <div class='alert alert-warning' ng-show="notifymeFeature">
+                    <p>Quieres que te notifique por correo cuando se mueva la cola?</p>
+                    <p>
+                        <button ng-hide="notification" class='btn' ng-click="enableMovementNotification()">Notificame</button>
+                        <button ng-show="notification" class='btn' ng-click="disableMovementNotification()">Ya No</button>
+                    </p>
+                </div>
                 <div ng-show="loadingNextMovements" style="text-align: center">
                     <p>Calculando...<br>
                     <img src="https://i1.wp.com/cdnjs.cloudflare.com/ajax/libs/galleriffic/2.0.1/css/loader.gif?zoom=2"/>
@@ -232,6 +239,32 @@
             });
         }
 
+        $scope.notification = false;
+        $scope.enableMovementNotification = function(){
+            $scope.notification = true;
+            getLocation(function(position){
+                var coords = buildCoords(position);
+                $http.put('/api/movement-notification', coords);
+            });
+        };
+        $scope.disableMovementNotification = function(){
+            $scope.notification = false;
+            getLocation(function(position){
+                var coords = buildCoords(position);
+                $http({
+                    url: '/api/movement-notification',
+                    method: 'DELETE',
+                    data: JSON.stringify(coords),
+                    headers: {
+                        "Content-Type": "application/json;charset=utf-8"
+                    }
+                }).then(function(res) {
+                    console.log(res.data);
+                }, function(error) {
+                    console.log(error);
+                });
+            });
+        };
         $scope.arrivedAtTraffic = function(){
             $scope.loadingNextMovements = false;
             $scope.nextMovements = [];
@@ -297,6 +330,8 @@
             $scope.setStatus("userIdentified");
         };
         if($scope.getStatus()=="userIdentified") $scope.identifyUser();
+
+        $scope.notifymeFeature = false;//$location.host() !== "localhost";
     });
 </script>
 </body>

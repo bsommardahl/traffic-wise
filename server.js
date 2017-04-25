@@ -2,6 +2,7 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var path = require('path');
 var traffic = require('./traffic');
+var notifications = require('./notifications');
 
 var app = express();
 
@@ -12,6 +13,28 @@ app.get('/', function (req, res) {
 });
 app.get('/logo', function (req, res) {
   res.sendFile(path.join(__dirname + '/assets/logo.png'));
+});
+app.put('/api/movement-notification', function(req, res){
+    var timestamp = new Date();
+    notifications.add(req.body).then(function(){
+        console.log(`NOTIFICATION ADDED: ${req.body.email} logged at ${timestamp}.`);
+        res.sendStatus(200);
+    })
+    .catch(function(error){
+        res.status(500);
+        res.json({error: error});
+    });
+});
+app.delete('/api/movement-notification', function(req, res){
+    var timestamp = new Date();
+    notifications.remove(req.body).then(function(){
+        console.log(`NOTIFICATION REMOVED: ${req.body.email} logged at ${timestamp}.`);
+        res.sendStatus(200);
+    })
+    .catch(function(error){
+        res.status(500);
+        res.json({error: error});
+    });
 });
 app.get('/api/getNearbyWaiters', function(req, res){
     var coords = { latitude: req.query.lat, longitude: req.query.lng };
@@ -49,6 +72,12 @@ app.post('/api/moving', function(req, res){
     var timestamp = new Date();
     traffic.addMoving(req.body).then(function(){
         console.log(`MOVE: ${req.body.email} logged at ${timestamp}.`);
+        notifications.send(req.body)
+            .then(() => {
+                console.log("NOTIFICATION SENT");
+            }).catch((err) => {
+                console.log(err);
+            });
         res.sendStatus(200);
     })
     .catch(function(error){

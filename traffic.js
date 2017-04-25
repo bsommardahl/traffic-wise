@@ -14,7 +14,8 @@ var getTrafficLineMovementStartTimes = (checkins) => {
         resolve(startTimes.map((t) => { return t.key; }));
     });
 }
-function getNearbyMovingCheckins(coords, miles){
+function getNearbyCheckins(coords, miles, status){
+    if(!status) status = "moving";
     return new Promise((resolve, reject) => {
         var distance = milesToRadian(miles);
         var coordArray = [ Number(coords.longitude), Number(coords.latitude) ];
@@ -26,7 +27,7 @@ function getNearbyMovingCheckins(coords, miles){
                     $centerSphere : [ coordArray, distance ]
                 }
             },
-            "status": "moving",
+            "status": status,
             "timestamp": { $gte: fiveDaysAgo }
         };
         MongoClient.connect(url, function(err, db) {
@@ -52,10 +53,14 @@ function getNearbyMovingCheckins(coords, miles){
 }
 
 var getNearbyWaiters = (checkin) => {
-    return getNearbyMovingCheckins(checkin, 2) //2 miles
+    return getNearbyCheckins(checkin, 2, "waiting") //2 miles
         .then((checkins) => {
-            var waiting = checkins.filter((c)=> {
-                return c.status = "waiting";
+            var waiting = checkins.filter((c) => {
+                var TWO_HOURS = 60 * 60 * 1000 * 2;
+                var itemTimestamp = new Date(c.timestamp);
+                var diff = new Date() - itemTimestamp;
+                var recent = diff < TWO_HOURS;
+                return recent;
             });
             var grouped =  _.groupBy(waiting, (item) => {
                 return item.email;
@@ -66,7 +71,7 @@ var getNearbyWaiters = (checkin) => {
         });
 };
 var getAverageDurationForCheckin = (checkin) => {
-    return getNearbyMovingCheckins(checkin, 2) //2 miles
+    return getNearbyCheckins(checkin, 2) //2 miles
         .then(getTrafficLineMovementStartTimes)
         .then((startTimes) => {
             startTimes = startTimes.sort((a,b)=>{return new Date(a.timestamp)<new Date(b.timestamp)});

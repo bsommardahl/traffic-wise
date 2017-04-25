@@ -31,10 +31,10 @@
             <div ng-if="status=='agreed'">
                 <h3>Las Reglas</h3>
                 <p>
-                    Esta app existe para ayudarnos a todos nosotros. Con los datos recaudados, podemos calcular y predecir las movimientos de trafico. Por ese fin, pedimos que todos:
+                    Esta app existe para ayudarnos a todos nosotros. Con los datos recaudados, podemos calcular y predecir los movimientos de trafico. Para esto, necesitamos que todos:
                     <ol>
-                        <li>Marca cuando haya llegado a la cola</li>
-                        <li>Marca cuando la cola ya se mueva.</li>
+                        <li>Marquen cuando hayan llegado a la cola</li>
+                        <li>Marquen cuando la cola se este moviendo.</li>
                     </ol>
                 </p>
                 </p>
@@ -70,7 +70,7 @@
                     </div>
                 </div>
                 <div ng-show="peopleWaiting.length>1" class="alert alert-success">
-                    Actualmente hay {{peopleWaiting.length}} usuarios esperando contigo.
+                    No esta solo en la cola! Actualmente hay {{peopleWaiting.length-1}} usuarios mas esperando contigo.
                 </div>
                 <div ng-show="nextMovements.length > 0" class='alert alert-info'>Creemos que la cola va a moverse en las siguientes horas:
                     <ul ng-repeat="next in nextMovements">
@@ -98,7 +98,7 @@
                     </div>
                 </div>
                 <div ng-show="peopleWaiting.length > 1" class="alert alert-success">
-                    Actualmente hay {{peopleWaiting.length}} usuarios esperando contigo.
+                    No esta solo en la cola! Actualmente hay {{peopleWaiting.length-1}} usuarios mas esperando contigo.
                 </div>
                 <div ng-show="nextMovements.length > 0" class='alert alert-info' style="text-align: center">
                     <p>Proximo Movimiento:</p>

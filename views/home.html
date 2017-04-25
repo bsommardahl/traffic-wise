@@ -28,6 +28,18 @@
                 </p>
                 <p><button class='btn btn-lg btn-block btn-success' ng-click="start()">Empezar</button></p>
             </div>
+            <div ng-if="status=='agreed'">
+                <h3>Las Reglas</h3>
+                <p>
+                    Esta app existe para ayudarnos a todos nosotros. Con los datos recaudados, podemos calcular y predecir las movimientos de trafico. Por ese fin, pedimos que todos:
+                    <ol>
+                        <li>Marca cuando haya llegado a la cola</li>
+                        <li>Marca cuando la cola ya se mueva.</li>
+                    </ol>
+                </p>
+                </p>
+                <p><button class='btn btn-lg btn-block btn-info' ng-click="agreed()">Estoy De Acuerdo</button></p>
+            </div>
             <div ng-if="status=='started'">
                 <h3>Habilitar Ubicación</h3>
                 <p>Necesitamos su ubicación para poder calcular la espera junto con los datos de los demas conductores. Favor, oprima el botón de abajo para habilitar la ubicación.</p>
@@ -240,6 +252,11 @@
         if($scope.getStatus()=="moving") $scope.trafficMoving();
 
         $scope.start = function(){
+            $scope.setStatus("agreed");
+        };
+        if($scope.getStatus()=="agreed") $scope.start();
+
+        $scope.agreed = function(){
             $scope.setStatus("started");
         };
         if($scope.getStatus()=="started") $scope.start();

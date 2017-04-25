@@ -56,10 +56,10 @@
             </div>
             <div ng-if="status=='waiting'">
                 <h3>Diganos Cuando Se Mueva la Cola</h3>
-                <div ng-hide="loadingNextMovements && nextMovements.length > 0">
+                <div class='alert alert-error' ng-hide="loadingNextMovements && nextMovements.length > 0">
                     No habian suficientes datos para calcular las horas de movimiento.
                 </div>
-                <div ng.show="nextMovements.length > 0" class='panel'>Creemos que la cola va a moverse en siguientes horas:
+                <div ng-show="nextMovements.length > 0" class='panel'>Creemos que la cola va a moverse en siguientes horas:
                     <ul ng-repeat="next in nextMovements">
                         <li>{{next.time}}</li>
                     </ul>

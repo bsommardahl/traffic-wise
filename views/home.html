@@ -18,24 +18,24 @@
             <div ng-if="status=='none'">
                 <h3>Hola!</h3>
                 <p>
-                    Se cansa de estar en cola? JUNTOS podemos ser mas listo del trafico! Con los datos generados por esta app, podemos saber mas del trafico. Por ejemplo, sabremos...
+                    Esta cansado de estar en cola? JUNTOS podemos ser mas listos que el tráfico! Con los datos generados por esta app, podemos saber mas del tráfico. Por ejemplo, sabremos...
                     <ul>
-                        <li>Cuando ya va a mover la cola</li>
-                        <li>A que hora mejor llegamos a la cola</li>
-                        <li>Otros noticias de la cola</li>
+                        <li>Cuando ya se va a mover la cola</li>
+                        <li>A que hora es mejor llegar a la cola</li>
+                        <li>Otros noticias sobre la cola</li>
                     </ul>
                 </p>
                 </p>
                 <p><button class='btn btn-lg btn-block btn-success' ng-click="start()">Empezar</button></p>
             </div>
             <div ng-if="status=='started'">
-                <h3>Habilitar Localization</h3>
-                <p>Nececitamos su ubicacion para poder calcular calcular la espera juntos con los datos de los demas conductores. Favor, oprima el boton abajo para habilitar localizacion.</p>
-                <p><button class='btn btn-lg btn-block btn-success' ng-click="enableLocation()">Habilitar Localizacion</button></p>
+                <h3>Habilitar Ubicación</h3>
+                <p>Necesitamos su ubicación para poder calcular la espera junto con los datos de los demas conductores. Favor, oprima el botón de abajo para habilitar la ubicación.</p>
+                <p><button class='btn btn-lg btn-block btn-success' ng-click="enableLocation()">Habilitar Ubicación</button></p>
             </div>
             <div ng-if="status=='gpsApproved'">
                 <h3>Identificarse</h3>
-                <div class="alert alert-info">Prometemos no usar su correo por algo aparte de esta application. Su privacidad es seguro aqui.</div>
+                <div class="alert alert-info">Prometemos no utilizar su correo para algo aparte de esta application. Su privacidad es segura aquí.</div>
                 <form ng-submit="identifyUser()">
                     <div class="form-group">
                         <label for="emailInput">Su Correo:</label>
@@ -54,7 +54,7 @@
 
             </div>
             <div ng-if="status=='waiting'">
-                <h3>Diganos Cuando Ya Mueva la Cola</h3>
+                <h3>Diganos Cuando Se Mueva la Cola</h3>
                 <div class='panel'>Creemos que la cola va a moverse en siguientes horas:
                     <ul ng-repeat="next in nextMovements">
                         <li>{{next.time}}</li>
@@ -64,19 +64,18 @@
                         <img src="https://i1.wp.com/cdnjs.cloudflare.com/ajax/libs/galleriffic/2.0.1/css/loader.gif?zoom=2"/>
                     </div>
                 </div>
-                <button class='btn btn-block btn-lg btn-success' ng-click="trafficMoving()">La Cola ya Esta Moviendo</button>
                 <button class='btn btn-block' ng-click="resetStatus()">Empezar de Cero</button>
             </div>
             <div ng-if="status=='moving'">
                 <h3>Nos Vemos</h3>
-                <div class="alert alert-success">Gracias! Estamos trabajando para mejorar esta app. Por favor, siga ustando la app y esperando nuevas funcionalidades.</div>
+                <div class="alert alert-success">Gracias! Estamos trabajando para mejorar esta app. Por favor, siga usando la app y esperando nuevas funcionalidades.</div>
                 <button class='btn btn-block' ng-click="resetStatus()">Empezar de Cero</button>
             </div>
         </div>
         <div class="panel panel-footer">
             <div class="panel-body">
                 <h3>Mas Info</h3>
-                <p>Esta app esta construida por <strong>residentes de Santa Ana, F.M.</strong> por el simple fin de poder llegar a Tegucigalpa y de regreso con mas facilidad mientras el relajo de trafico que ocupa nuesta carreterra.</p>
+                <p>Esta app esta construida por <strong>residentes de Santa Ana, F.M.</strong> por el simple fin de poder llegar a Tegucigalpa y de regreso con mas facilidad mientras el relajo del tráfico que ocupe nuesta carreterra.</p>
             </div>
         </div></div>
     </div>

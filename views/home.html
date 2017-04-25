@@ -31,11 +31,7 @@
             <div ng-if="status=='started'">
                 <h3>Habilitar Ubicación</h3>
                 <p>Necesitamos su ubicación para poder calcular la espera junto con los datos de los demas conductores. Favor, oprima el botón de abajo para habilitar la ubicación.</p>
-                <div ng-show="gettingLocation" style="text-align: center">
-                    Ubicandole...<br>
-                    <img src="https://i1.wp.com/cdnjs.cloudflare.com/ajax/libs/galleriffic/2.0.1/css/loader.gif?zoom=2"/>
-                </div>
-                <p><button class='btn btn-lg btn-block btn-success' ng-click="enableLocation()">Habilitar Ubicación</button></p>
+                <p><button class='btn btn-lg btn-block btn-primary' ng-click="enableLocation()">Habilitar Ubicación</button></p>
             </div>
             <div ng-if="status=='gpsApproved'">
                 <h3>Identificarse</h3>
@@ -52,37 +48,56 @@
             </div>
             <div ng-if="status=='userIdentified'">
                 <h3>Diganos Cuando Haya Llegado a la Cola</h3>
-                <div class='alert alert-info'>Aqui tenemos planeado una lista de las hora aproximadas que va a pasar la cola por su lado. Favor, sigue usando el app y espera nuevas funcionalidades.</div>
-                <button class='btn btn-block btn-lg btn-warning' ng-click="arrivedAtTraffic()">Estoy Parado en la Cola</button>
+                <div ng-show="gettingLocation" style="text-align: center">
+                    <p>Obteniendo Ubicacion...<br>
+                    <img src="https://i1.wp.com/cdnjs.cloudflare.com/ajax/libs/galleriffic/2.0.1/css/loader.gif?zoom=2"/></p>
+                </div>
+                <div ng-hide="gettingLocation">
+                    <div class='alert alert-error' ng-hide="loadingNextMovements || nextMovements.length > 0">
+                        No habian suficientes datos para calcular las horas de movimiento.
+                    </div>
+                </div>
+                <div ng-show="nextMovements.length > 0" class='alert alert-info'>Creemos que la cola va a moverse en las siguientes horas:
+                    <ul ng-repeat="next in nextMovements">
+                        <li>{{next.time}}</li>
+                    </ul>
+                </div>
+                <div ng-show="loadingNextMovements" style="text-align: center">
+                    <p>Calculando...<br>
+                    <img src="https://i1.wp.com/cdnjs.cloudflare.com/ajax/libs/galleriffic/2.0.1/css/loader.gif?zoom=2"/>
+                    </p>
+                </div>
+                <button class='btn btn-block btn-lg btn-danger' ng-click="arrivedAtTraffic()">Estoy Parado en la Cola</button>
                 <button class='btn btn-block' ng-click="resetStatus()">Empezar de Cero</button>
 
             </div>
             <div ng-if="status=='waiting'">
                 <h3>Diganos Cuando Se Mueva la Cola</h3>
+                <div ng-show="gettingLocation" style="text-align: center">
+                    <p>Obteniendo Ubicacion...<br>
+                    <img src="https://i1.wp.com/cdnjs.cloudflare.com/ajax/libs/galleriffic/2.0.1/css/loader.gif?zoom=2"/></p>
+                </div>
                 <div ng-hide="gettingLocation">
-                    <div class='alert alert-error' ng-hide="loadingNextMovements && nextMovements.length > 0">
+                    <div class='alert alert-error' ng-hide="loadingNextMovements || nextMovements.length > 0">
                         No habian suficientes datos para calcular las horas de movimiento.
                     </div>
                 </div>
-                <div ng-show="gettingLocation" style="text-align: center">
-                        Ubicandole...<br>
-                    <img src="https://i1.wp.com/cdnjs.cloudflare.com/ajax/libs/galleriffic/2.0.1/css/loader.gif?zoom=2"/>
+                <div ng-show="nextMovements.length > 0" class='alert alert-info' style="text-align: center">
+                    <p>Proximo Movimiento:</p>
+                    <h1>{{ nextMovements[0].time }}</h1>
+                    <p>(aproximado)</p>
                 </div>
-                <div ng-show="nextMovements.length > 0" class='panel'>Creemos que la cola va a moverse en siguientes horas:
-                    <ul ng-repeat="next in nextMovements">
-                        <li>{{next.time}}</li>
-                    </ul>
-                    <div ng-show="loadingNextMovements" style="text-align: center">
-                        Intentando calcular...<br>
-                        <img src="https://i1.wp.com/cdnjs.cloudflare.com/ajax/libs/galleriffic/2.0.1/css/loader.gif?zoom=2"/>
-                    </div>
+                <div ng-show="loadingNextMovements" style="text-align: center">
+                    <p>Calculando...<br>
+                    <img src="https://i1.wp.com/cdnjs.cloudflare.com/ajax/libs/galleriffic/2.0.1/css/loader.gif?zoom=2"/>
+                    </p>
                 </div>
                 <button class='btn btn-block btn-lg btn-success' ng-click="trafficMoving()">La Cola ya Se Esta Moviendo</button>
                 <button class='btn btn-block' ng-click="resetStatus()">Empezar de Cero</button>
             </div>
             <div ng-if="status=='moving'">
                 <h3>Nos Vemos</h3>
-                <div class="alert alert-success">Gracias! Estamos trabajando para mejorar esta app. Por favor, siga usando la app y esperando nuevas funcionalidades.</div>
+                <div class="alert alert-success"><strong>Gracias!</strong> Estamos trabajando para mejorar esta app. Por favor, siga usando la app y esperando nuevas funcionalidades.</div>
                 <button class='btn btn-block' ng-click="resetStatus()">Empezar de Cero</button>
             </div>
         </div>
@@ -97,7 +112,44 @@
 
 <script>
     var app = angular.module('TrafficWiseApp', ['ngCookies']);
-    app.controller('HomeController', function($scope, $http, $cookies) {
+    app.controller('HomeController', function($scope, $http, $cookies, $location) {
+
+        if($location.host() == "localhost"){
+            navigator = {
+                geolocation : {
+                    getCurrentPosition : function(done){
+                        setTimeout(function(){
+                            $scope.gettingLocation = false;
+                            done({ coords: {
+                                latitude: 13.94574807291711,
+                                longitude: -87.21308999243965
+                            }})
+                        }, 2000);
+                    }
+                }
+            };
+        }
+
+        $scope.gettingLocation = false;
+        function getLocation(done){
+            $scope.gettingLocation = true;
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        $scope.gettingLocation = false;
+                        done(position);
+                    },
+                    function(error) {
+                        console.log(error);
+                        $scope.gettingLocation = false;
+                        alert("Error al pedir ubicacion: " + error.message);
+                    },
+                    {timeout: 30000, enableHighAccuracy: true, maximumAge: 75000});
+            }
+            else{
+                $scope.gettingLocation = false;
+            }
+        }
         function buildCoords(position){
             return {
                 latitude: position.coords.latitude,
@@ -105,96 +157,8 @@
                 email: $scope.getEmail()
             }
         }
-        $scope.waiting = [];
-        $scope.loadingNextMovements = false;
-        $scope.gettingLocation = false;
-
-        function getNextMovements(coords){
-            $scope.loadingNextMovements = true;
-            $http.get(`/api/average-duration?lng=${coords.longitude}&lat=${coords.latitude}`)
-            .then(function(res){
-                var nextMovements = [];
-                var lastStartTime = new Date(res.data.lastStartTime);
-                var duration = res.data.averageDuration;
-                for(var i = 1; i<=10; i++){
-                    var diff = i * duration;
-                    var nextTime = new Date(lastStartTime.getTime() + diff*60000);
-                    nextMovements.push(nextTime);
-                }
-                $scope.nextMovements = nextMovements.filter(function(next){
-                    return moment(next) >= moment();
-                }).map(function(next){
-                    return { time: moment(next).local().format("LT") };
-                }).splice(0,3);
-                $scope.loadingNextMovements = false;
-            });
-        }
-        $scope.nextMovements = [];
-        function gpsError(error){
-            alert("Error al pedir ubicacion: " + error.message);
-            console.log(error);
-        }
-        var gpsSettings = {timeout:10000};
-        $scope.arrivedAtTraffic = function(){
-            $scope.status = "waiting";
-            $scope.gettingLocation = true;
-            navigator.geolocation.getCurrentPosition(function(position) {
-                $scope.gettingLocation = false;
-                var coords = buildCoords(position);
-                $http.post('/api/waiting', coords)
-                    .then(function(){
-                        getNextMovements(coords);
-                        $scope.waitingLoggedAt = new Date();
-                    })
-                    .catch(function(err){
-                        console.log(err);
-                    });
-            }, gpsError, gpsSettings);
-        };
-        $scope.trafficMoving = function(){
-            $scope.status = "moving";
-            $scope.gettingLocation = true;
-            navigator.geolocation.getCurrentPosition(function(position){
-                $scope.gettingLocation = false;
-                var coords = buildCoords(position);
-                $http.post('/api/moving', coords)
-                    .then(function(){
-                        $scope.movingLoggedAt = new Date();
-                    }).catch(function(err){
-                        console.log(err);
-                    });
-            }, gpsError, gpsSettings);
-        };
-        $scope.start = function(){
-            $scope.status = "started";
-        };
-        $scope.enableLocation = function(){
-            $scope.gettingLocation = true;
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    function(position) {
-                        $scope.gettingLocation = false;
-                        $scope.status = "gpsApproved";
-                        $cookies.put("gps", true);
-                        console.log(position);
-                    },
-                    function(error) {
-                        console.log(error);
-                        $scope.gettingLocation = false;
-                    },
-                    {timeout: 30000, enableHighAccuracy: true, maximumAge: 75000});
-            }
-            else{
-                $scope.gettingLocation = false;
-            }
-        };
-        $scope.identifyUser = function(){
-            $scope.setEmail($scope.form.email);
-            $scope.setStatus("userIdentified");
-        };
-
         $scope.getStatus = function(){
-            return $cookies.get("status");
+            return $cookies.get("status") || "none";
         };
         $scope.setStatus = function(status){
             $scope.status = status;
@@ -215,11 +179,95 @@
 
         $scope.resetStatus = function(){
             $scope.setStatus('none');
-            if($cookies.get("gps")) {
-                $scope.status = "gpsApproved";
-            }
         }
-        $scope.resetStatus();
+        $scope.status = $scope.getStatus();
+        $scope.waiting = [];
+        $scope.loadingNextMovements = false;
+        $scope.nextMovements = [];
+
+        function getNextMovements(coords){
+            $scope.loadingNextMovements = true;
+            $http.get(`/api/average-duration?lng=${coords.longitude}&lat=${coords.latitude}`)
+            .then(function(res){
+                $scope.loadingNextMovements = false;
+                var nextMovements = [];
+                var lastStartTime = new Date(res.data.lastStartTime);
+                var duration = res.data.averageDuration;
+                for(var i = 1; i<=10; i++){
+                    var diff = i * duration;
+                    var nextTime = new Date(lastStartTime.getTime() + diff*60000);
+                    nextMovements.push(nextTime);
+                }
+                $scope.nextMovements = nextMovements.filter(function(next){
+                    return moment(next) >= moment();
+                }).map(function(next){
+                    return { time: moment(next).local().format("LT") };
+                }).splice(0,3);
+
+            });
+        }
+
+        $scope.arrivedAtTraffic = function(){
+            $scope.loadingNextMovements = false;
+            $scope.nextMovements = [];
+            $scope.setStatus("waiting");
+            getLocation(function(position){
+                var coords = buildCoords(position);
+                getNextMovements(coords);
+                $http.post('/api/waiting', coords)
+                    .then(function(){
+                        $scope.waitingLoggedAt = new Date();
+                    })
+                    .catch(function(err){
+                        console.log(err);
+                    });
+            });
+        };
+        if($scope.getStatus()=="waiting") $scope.arrivedAtTraffic();
+
+        $scope.trafficMoving = function(){
+            $scope.setStatus("moving");
+            getLocation(function(position){
+                var coords = buildCoords(position);
+                $http.post('/api/moving', coords)
+                    .then(function(){
+                        $scope.movingLoggedAt = new Date();
+                    }).catch(function(err){
+                        console.log(err);
+                    });
+                });
+        };
+        if($scope.getStatus()=="moving") $scope.trafficMoving();
+
+        $scope.start = function(){
+            $scope.setStatus("started");
+        };
+        if($scope.getStatus()=="started") $scope.start();
+
+        $scope.enableLocation = function(){
+            $scope.setStatus("gpsApproved");
+            getLocation(function(position){
+                $cookies.put("gps", true);
+                console.log(position);
+                var coords = buildCoords(position);
+                getNextMovements(coords);
+            });
+        };
+        if($scope.getStatus()=="gpsApproved") $scope.enableLocation();
+
+        $scope.identifyUser = function(){
+            $scope.loadingNextMovements = false;
+            $scope.nextMovements = [];
+
+            if($scope.form.email)
+                $scope.setEmail($scope.form.email);
+            getLocation(function(position){
+                var coords = buildCoords(position);
+                getNextMovements(coords);
+            });
+            $scope.setStatus("userIdentified");
+        };
+        if($scope.getStatus()=="userIdentified") $scope.identifyUser();
     });
 </script>
 </body>

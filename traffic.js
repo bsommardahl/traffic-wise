@@ -1,55 +1,72 @@
+var _ = require('lodash');
 var MongoClient = require('mongodb').MongoClient;
 var url = process.env.MONGODB_URI;
-
+var groupByDateRanges = require('./util/dateRangeGrouper');
+var trafficHelper = require('./util/trafficHelper');
 var milesToRadian = function(miles){
     var earthRadiusInMiles = 3959;
     return miles / earthRadiusInMiles;
 };
 
+var getTrafficLineMovementStartTimes = (checkins) => {
+    return new Promise((resolve, reject) => {
+        var startTimes = groupByDateRanges(checkins, (c) => { return c.timestamp; });
+        resolve(startTimes.map((t) => { return t.key; }));
+    });
+}
 function getNearbyMovingCheckins(coords, miles){
     return new Promise((resolve, reject) => {
+        var distance = milesToRadian(miles);
+        var coordArray = [ Number(coords.longitude), Number(coords.latitude) ];
+        var fiveDaysAgo = new Date();
+        fiveDaysAgo.setDate(fiveDaysAgo.getDate()-5);
         var query = {
             "loc" : {
                 $geoWithin : {
-                    $centerSphere : [
-                        [ parseFloat(coords.longitude), parseFloat(coords.latitude)],
-                        milesToRadian(miles) ]
+                    $centerSphere : [ coordArray, distance ]
                 }
             },
-            "status": "moving"
-            //also need to limit the time stamps
+            "status": "moving",
+            "timestamp": { $gte: fiveDaysAgo }
         };
-
         MongoClient.connect(url, function(err, db) {
-            db.collection("checkins")
-                .find(query)
-                .sort( { timestamp: -1 } )
-                .toArray(function(err,result){
-                    if(err){
-                        console.log(err);
-                        reject(err);
-                    }
-                    else{
-                        resolve(result);
-                    }
-                });
-            });
-        });
-}
-function getPrediction(coords){
-    return getNearbyMovingCheckins(coords, 2) //2 miles
-        .then(function(checkins){
-            console.log(checkins);
+            if(err){
+                console.log(err);
+                reject(err);
+            } else {
+                db.collection("checkins")
+                    .find(query)
+                    .toArray(function(err,result){
+                        if(err){
+                            console.log(err);
+                            reject(err);
+                        }
+                        else{
+                            resolve(result);
+                        }
+                    });
 
-            //group the checkins by relative time
-            //calculate the average time between grouped checkins
-            //find out the last time the cola moved
-            //how long have they been waiting so far?
-            //average time - waiting time = time left to wait
-            //predict the cola will move in X minutes
-            return checkins;
+            }
         });
+    });
 }
+
+var getAverageDurationForCheckin = (checkin) => {
+    return getNearbyMovingCheckins(checkin, 2) //2 miles
+        .then(getTrafficLineMovementStartTimes)
+        .then((startTimes) => {
+            startTimes = startTimes.sort((a,b)=>{return new Date(a.timestamp)<new Date(b.timestamp)});
+            var lastStartTime = startTimes[startTimes.length-1];
+            return trafficHelper.getAverageDuration(startTimes)
+                .then((avgDuration) => {
+                    return {
+                        lastStartTime: lastStartTime,
+                        averageDuration: avgDuration,
+                    };
+                });
+        });
+};
+
 function logCheckin(coords, status){
     return new Promise((resolve, reject) => {
         if(!coords || !coords.latitude || !coords.longitude) {
@@ -86,7 +103,7 @@ function logCheckin(coords, status){
 }
 
 module.exports = {
-    getPrediction: getPrediction,
+    getAverageDuration: getAverageDurationForCheckin,
     addWaiting: function(coords){
         return logCheckin(coords, "waiting");
     },

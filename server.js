@@ -13,9 +13,10 @@ app.get('/', function (req, res) {
 app.get('/logo', function (req, res) {
   res.sendFile(path.join(__dirname + '/assets/logo.png'));
 });
-app.get('/api/prediction', function(req, res){
+app.get('/api/average-duration', function(req, res){
     var coords = { latitude: req.query.lat, longitude: req.query.lng };
-    traffic.getPrediction(coords).then(function(results){
+    traffic.getAverageDuration(coords).then(function(results){
+        results.currentTime = new Date();
         res.send(results);
     })
     .catch(function(error){

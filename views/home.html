@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
     <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
     <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-cookies.js"></script>
 </head>
 <body>
@@ -47,14 +48,22 @@
             </div>
             <div ng-if="status=='userIdentified'">
                 <h3>Diganos Cuando Haya Llegado a la Cola</h3>
-                <div class='alert alert-info'>Aqui tenemos planeado una lista de las hora aproximadas que va a pasar la cola por su lado. Favor, sigue usando el app y espera nueva funcionalidades.</div>
+                <div class='alert alert-info'>Aqui tenemos planeado una lista de las hora aproximadas que va a pasar la cola por su lado. Favor, sigue usando el app y espera nuevas funcionalidades.</div>
                 <button class='btn btn-block btn-lg btn-warning' ng-click="arrivedAtTraffic()">Estoy Parado en la Cola</button>
                 <button class='btn btn-block' ng-click="resetStatus()">Empezar de Cero</button>
 
             </div>
             <div ng-if="status=='waiting'">
                 <h3>Diganos Cuando Ya Mueva la Cola</h3>
-                <div class='alert alert-info'>Estamos trabajando en la calculacion de cuando ya va a mover la cola. Favor, sigue usando el app y espera nueva funcionalidades.</div>
+                <div class='panel'>Creemos que la cola va a moverse en siguientes horas:
+                    <ul ng-repeat="next in nextMovements">
+                        <li>{{next.time}}</li>
+                    </ul>
+                    <div ng-show="nextMovements.length === 0" style="text-align: center">
+                        Intentando calcular...<br>
+                        <img src="https://i1.wp.com/cdnjs.cloudflare.com/ajax/libs/galleriffic/2.0.1/css/loader.gif?zoom=2"/>
+                    </div>
+                </div>
                 <button class='btn btn-block btn-lg btn-success' ng-click="trafficMoving()">La Cola ya Esta Moviendo</button>
                 <button class='btn btn-block' ng-click="resetStatus()">Empezar de Cero</button>
             </div>
@@ -84,13 +93,32 @@
             }
         }
         $scope.waiting = [];
-
+        function getNextMovements(coords){
+            $http.get(`/api/average-duration?lng=${coords.longitude}&lat=${coords.latitude}`)
+            .then(function(res){
+                var nextMovements = [];
+                var lastStartTime = new Date(res.data.lastStartTime);
+                var duration = res.data.averageDuration;
+                for(var i = 1; i<=10; i++){
+                    var diff = i * duration;
+                    var nextTime = new Date(lastStartTime.getTime() + diff*60000);
+                    nextMovements.push(nextTime);
+                }
+                $scope.nextMovements = nextMovements.filter(function(next){
+                    return moment(next) >= moment();
+                }).map(function(next){
+                    return { time: moment(next).local().format("LT") };
+                }).splice(0,3);
+            });
+        }
+        $scope.nextMovements = [];
         $scope.arrivedAtTraffic = function(){
             navigator.geolocation.getCurrentPosition(function(position) {
                 $scope.status = "waiting";
-                var coords = buildCoords(position);
+                var coords = buildCoords();
                 $http.post('/api/waiting', coords)
                     .then(function(){
+                        getNextMovements(coords);
                         $scope.waitingLoggedAt = new Date();
                     })
                     .catch(function(err){
@@ -101,7 +129,7 @@
         $scope.trafficMoving = function(){
             navigator.geolocation.getCurrentPosition(function(position){
                 $scope.status = "moving";
-                var coords = buildCoords(position);
+                var coords = buildCoords();
                 $http.post('/api/moving', coords)
                     .then(function(){
                         $scope.movingLoggedAt = new Date();

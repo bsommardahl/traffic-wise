@@ -8,6 +8,7 @@
     <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
     <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-cookies.js"></script>
+    <script src='https://maps.googleapis.com/maps/api/jscallback=initMap&signed_in=true&key=AIzaSyAVzNrXz0-jQsmx7v-TLeeRfz8zC4PrDXQ' async defer></script>
 </head>
 <body>
 <div ng-controller="HomeController">
@@ -121,12 +122,11 @@
             alert("Error al pedir ubicacion: " + error.message);
             console.log(error);
         }
-        var gpsSettings = {maximumAge:60000, timeout:5000, enableHighAccuracy:true};
+        var gpsSettings = {timeout:10000};
         $scope.arrivedAtTraffic = function(){
             navigator.geolocation.getCurrentPosition(function(position) {
-
                 $scope.status = "waiting";
-                var coords = buildCoords();
+                var coords = buildCoords(position);
                 $http.post('/api/waiting', coords)
                     .then(function(){
                         getNextMovements(coords);
@@ -140,7 +140,7 @@
         $scope.trafficMoving = function(){
             navigator.geolocation.getCurrentPosition(function(position){
                 $scope.status = "moving";
-                var coords = buildCoords();
+                var coords = buildCoords(position);
                 $http.post('/api/moving', coords)
                     .then(function(){
                         $scope.movingLoggedAt = new Date();
@@ -154,8 +154,17 @@
         };
         $scope.enableLocation = function(){
             if (navigator.geolocation) {
-                $scope.status = "gpsApproved";
-                $cookies.put("gps", true);
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        $scope.status = "gpsApproved";
+                        $cookies.put("gps", true);
+                        console.log(position);
+                    },
+                    function(error) {
+                        console.log(error);
+                    },
+                    {timeout: 30000, enableHighAccuracy: true, maximumAge: 75000}
+            );
             }
         };
         $scope.identifyUser = function(){

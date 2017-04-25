@@ -3,6 +3,7 @@ var MongoClient = require('mongodb').MongoClient;
 var url = process.env.MONGODB_URI;
 var groupByDateRanges = require('./util/dateRangeGrouper');
 var trafficHelper = require('./util/trafficHelper');
+var miles = 1;
 var milesToRadian = function(miles){
     var earthRadiusInMiles = 3959;
     return miles / earthRadiusInMiles;
@@ -53,7 +54,7 @@ function getNearbyCheckins(coords, miles, status){
 }
 
 var getNearbyWaiters = (checkin) => {
-    return getNearbyCheckins(checkin, 2, "waiting") //2 miles
+    return getNearbyCheckins(checkin, miles, "waiting")
         .then((checkins) => {
             var waiting = checkins.filter((c) => {
                 var TWO_HOURS = 60 * 60 * 1000 * 2;
@@ -71,7 +72,7 @@ var getNearbyWaiters = (checkin) => {
         });
 };
 var getAverageDurationForCheckin = (checkin) => {
-    return getNearbyCheckins(checkin, 2) //2 miles
+    return getNearbyCheckins(checkin, miles)
         .then(getTrafficLineMovementStartTimes)
         .then((startTimes) => {
             startTimes = startTimes.sort((a,b)=>{return new Date(a.timestamp)<new Date(b.timestamp)});

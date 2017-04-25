@@ -123,8 +123,8 @@
         }
         var gpsSettings = {timeout:10000};
         $scope.arrivedAtTraffic = function(){
+            $scope.status = "waiting";
             navigator.geolocation.getCurrentPosition(function(position) {
-                $scope.status = "waiting";
                 var coords = buildCoords(position);
                 $http.post('/api/waiting', coords)
                     .then(function(){
@@ -137,8 +137,8 @@
             }, gpsError, gpsSettings);
         };
         $scope.trafficMoving = function(){
+            $scope.status = "moving";
             navigator.geolocation.getCurrentPosition(function(position){
-                $scope.status = "moving";
                 var coords = buildCoords(position);
                 $http.post('/api/moving', coords)
                     .then(function(){

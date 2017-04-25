@@ -51,6 +51,20 @@ function getNearbyMovingCheckins(coords, miles){
     });
 }
 
+var getNearbyWaiters = (checkin) => {
+    return getNearbyMovingCheckins(checkin, 2) //2 miles
+        .then((checkins) => {
+            var waiting = checkins.filter((c)=> {
+                return c.status = "waiting";
+            });
+            var grouped =  _.groupBy(waiting, (item) => {
+                return item.email;
+            });
+            return Object.keys(grouped).map((key) => {
+                return { driver: key, checkins: grouped[key] };
+            });
+        });
+};
 var getAverageDurationForCheckin = (checkin) => {
     return getNearbyMovingCheckins(checkin, 2) //2 miles
         .then(getTrafficLineMovementStartTimes)
@@ -110,4 +124,5 @@ module.exports = {
     addMoving: function(coords){
         return logCheckin(coords, "moving");
     },
+    getNearbyWaiters: getNearbyWaiters
 };

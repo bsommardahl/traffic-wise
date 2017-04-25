@@ -42,15 +42,15 @@
             </div>
             <div ng-if="status=='started'">
                 <h3>Habilitar Ubicación</h3>
-                <p>Necesitamos su ubicación para poder calcular la espera junto con los datos de los demas conductores. Favor, oprima el botón de abajo para habilitar la ubicación.</p>
+                <p>Necesitamos tu ubicación actual para poder calcular la espera junto con los datos de los demas conductores. Favor, oprima el botón de abajo para habilitar la ubicación.</p>
                 <p><button class='btn btn-lg btn-block btn-primary' ng-click="enableLocation()">Habilitar Ubicación</button></p>
             </div>
             <div ng-if="status=='gpsApproved'">
                 <h3>Identificarse</h3>
-                <div class="alert alert-info">Prometemos no utilizar su correo para algo aparte de esta application. Su privacidad es segura aquí.</div>
+                <div class="alert alert-info">Prometemos no utilizar tu correo para algo aparte de esta application. Su privacidad es segura aquí.</div>
                 <form ng-submit="identifyUser()">
                     <div class="form-group">
-                        <label for="emailInput">Su Correo:</label>
+                        <label for="emailInput">Tu Correo:</label>
                         <input id="emailInput" class="form-control input-lg" required ng-model="form.email" type="email" placeholder="ex: alguien@yahoo.com" />
 
                     </div>
@@ -68,6 +68,9 @@
                     <div class='alert alert-error' ng-hide="loadingNextMovements || nextMovements.length > 0">
                         No habian suficientes datos para calcular las horas de movimiento.
                     </div>
+                </div>
+                <div ng-show="peopleWaiting.length>1" class="alert alert-success">
+                    Actualmente hay {{peopleWaiting.length}} usuarios esperando contigo.
                 </div>
                 <div ng-show="nextMovements.length > 0" class='alert alert-info'>Creemos que la cola va a moverse en las siguientes horas:
                     <ul ng-repeat="next in nextMovements">
@@ -93,6 +96,9 @@
                     <div class='alert alert-error' ng-hide="loadingNextMovements || nextMovements.length > 0">
                         No habian suficientes datos para calcular las horas de movimiento.
                     </div>
+                </div>
+                <div ng-show="peopleWaiting.length > 1" class="alert alert-success">
+                    Actualmente hay {{peopleWaiting.length}} usuarios esperando contigo.
                 </div>
                 <div ng-show="nextMovements.length > 0" class='alert alert-info' style="text-align: center">
                     <p>Proximo Movimiento:</p>
@@ -196,7 +202,14 @@
         $scope.waiting = [];
         $scope.loadingNextMovements = false;
         $scope.nextMovements = [];
+        $scope.peopleWaiting = [];
 
+        function getPeopleWaiting(coords){
+            $http.get(`/api/getNearbyWaiters?lng=${coords.longitude}&lat=${coords.latitude}`)
+                .then(function(res){
+                    $scope.peopleWaiting = res.data;
+                });
+        }
         function getNextMovements(coords){
             $scope.loadingNextMovements = true;
             $http.get(`/api/average-duration?lng=${coords.longitude}&lat=${coords.latitude}`)
@@ -226,6 +239,7 @@
             getLocation(function(position){
                 var coords = buildCoords(position);
                 getNextMovements(coords);
+                getPeopleWaiting(coords);
                 $http.post('/api/waiting', coords)
                     .then(function(){
                         $scope.waitingLoggedAt = new Date();
@@ -265,9 +279,6 @@
             $scope.setStatus("gpsApproved");
             getLocation(function(position){
                 $cookies.put("gps", true);
-                console.log(position);
-                var coords = buildCoords(position);
-                getNextMovements(coords);
             });
         };
         if($scope.getStatus()=="gpsApproved") $scope.enableLocation();
@@ -281,6 +292,7 @@
             getLocation(function(position){
                 var coords = buildCoords(position);
                 getNextMovements(coords);
+                getPeopleWaiting(coords);
             });
             $scope.setStatus("userIdentified");
         };

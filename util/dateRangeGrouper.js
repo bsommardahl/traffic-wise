@@ -15,7 +15,6 @@ module.exports = (array, getDate) => {
     var groups = [];
     var loops = 0
     while(sortedArray.length > 0 && loops < 20){
-        console.log(sortedArray.length);
         var group = getNextGroup(sortedArray[0], sortedArray);
         groups.push(group);
         sortedArray = sortedArray.filter((i) => {

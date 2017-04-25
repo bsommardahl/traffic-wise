@@ -13,6 +13,16 @@ app.get('/', function (req, res) {
 app.get('/logo', function (req, res) {
   res.sendFile(path.join(__dirname + '/assets/logo.png'));
 });
+app.get('/api/getNearbyWaiters', function(req, res){
+    var coords = { latitude: req.query.lat, longitude: req.query.lng };
+    traffic.getNearbyWaiters(coords).then(function(results){
+        res.send(results);
+    })
+    .catch(function(error){
+        res.status(500);
+        res.json({error: error});
+    });
+});
 app.get('/api/average-duration', function(req, res){
     var coords = { latitude: req.query.lat, longitude: req.query.lng };
     traffic.getAverageDuration(coords).then(function(results){

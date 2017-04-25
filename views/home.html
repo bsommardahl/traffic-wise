@@ -55,8 +55,10 @@
             </div>
             <div ng-if="status=='waiting'">
                 <h3>Diganos Cuando Se Mueva la Cola</h3>
-                <div class='alert alert-error' ng-hide="loadingNextMovements && nextMovements.length > 0">
-                    No habian suficientes datos para calcular las horas de movimiento.
+                <div ng-hide="gettingLocation">
+                    <div class='alert alert-error' ng-hide="loadingNextMovements && nextMovements.length > 0">
+                        No habian suficientes datos para calcular las horas de movimiento.
+                    </div>
                 </div>
                 <div ng-show="nextMovements.length > 0" class='panel'>Creemos que la cola va a moverse en siguientes horas:
                     <ul ng-repeat="next in nextMovements">
@@ -96,6 +98,9 @@
             }
         }
         $scope.waiting = [];
+        $scope.loadingNextMovements = false;
+        $scope.gettingLocation = false;
+
         function getNextMovements(coords){
             $scope.loadingNextMovements = true;
             $http.get(`/api/average-duration?lng=${coords.longitude}&lat=${coords.latitude}`)
@@ -124,7 +129,9 @@
         var gpsSettings = {timeout:10000};
         $scope.arrivedAtTraffic = function(){
             $scope.status = "waiting";
+            $scope.gettingLocation = true;
             navigator.geolocation.getCurrentPosition(function(position) {
+                $scope.gettingLocation = false;
                 var coords = buildCoords(position);
                 $http.post('/api/waiting', coords)
                     .then(function(){
@@ -138,7 +145,9 @@
         };
         $scope.trafficMoving = function(){
             $scope.status = "moving";
+            $scope.gettingLocation = true;
             navigator.geolocation.getCurrentPosition(function(position){
+                $scope.gettingLocation = false;
                 var coords = buildCoords(position);
                 $http.post('/api/moving', coords)
                     .then(function(){

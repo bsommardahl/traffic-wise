@@ -72,6 +72,7 @@ app.post('/api/moving', function(req, res){
     var timestamp = new Date();
     traffic.addMoving(req.body).then(function(){
         console.log(`MOVE: ${req.body.email} logged at ${timestamp}.`);
+        try{
         notifications.sendOne(req.body);
         notifications.send(req.body)
             .then(() => {
@@ -79,6 +80,10 @@ app.post('/api/moving', function(req, res){
             }).catch((err) => {
                 console.log(err);
             });
+        }
+        catch(err){
+            console.log("MAIL SEND ERROR", err);
+        }
         res.sendStatus(200);
     })
     .catch(function(error){

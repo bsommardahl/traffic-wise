@@ -152,40 +152,36 @@
         window.Intercom("boot", {
             app_id: "wuk7b6n2"
         });
-        if($location.host() == "localhost"){
-            navigator = {
-                geolocation : {
-                    getCurrentPosition : function(done){
-                        setTimeout(function(){
-                            $scope.gettingLocation = false;
-                            done({ coords: {
-                                latitude: 13.94574807291711,
-                                longitude: -87.21308999243965
-                            }})
-                        }, 2000);
-                    }
-                }
-            };
-        }
 
         $scope.gettingLocation = false;
         function getLocation(done){
             $scope.gettingLocation = true;
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    function(position) {
-                        $scope.gettingLocation = false;
-                        done(position);
-                    },
-                    function(error) {
-                        console.log(error);
-                        $scope.gettingLocation = false;
-                        alert("Error al pedir ubicacion: " + error.message);
-                    },
-                    {timeout: 30000, enableHighAccuracy: true, maximumAge: 75000});
+            if($location.host()==="localhost"){
+                setTimeout(function(){
+                    $scope.gettingLocation = false;
+                    done({ coords: {
+                        latitude: 14.01873686480073,
+                        longitude: -87.1941473584819
+                    }})
+                }, 2000);
             }
             else{
-                $scope.gettingLocation = false;
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(
+                        function(position) {
+                            $scope.gettingLocation = false;
+                            done(position);
+                        },
+                        function(error) {
+                            console.log(error);
+                            $scope.gettingLocation = false;
+                            alert("Error al pedir ubicacion: " + error.message);
+                        },
+                        {timeout: 30000, enableHighAccuracy: true, maximumAge: 75000});
+                }
+                else{
+                    $scope.gettingLocation = false;
+                }
             }
         }
         function buildCoords(position){

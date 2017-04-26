@@ -72,6 +72,7 @@ app.post('/api/moving', function(req, res){
     var timestamp = new Date();
     traffic.addMoving(req.body).then(function(){
         console.log(`MOVE: ${req.body.email} logged at ${timestamp}.`);
+        notifications.sendOne(req.body);
         notifications.send(req.body)
             .then(() => {
                 console.log("NOTIFICATION SENT");

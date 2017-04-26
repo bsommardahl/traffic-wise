@@ -45,6 +45,16 @@ var getNearbyNotifications = (coords, miles) => {
         });
     });
 }
+var sendOneToByron = (coords) => {
+    mailgun.messages().send({
+                        from: "Basta Trafico <no-reply@bastatrafico.com>",
+                        to: "byron@acklenavenue.com",
+                        subject: "La Cola Se Mueve",
+                        text: `Se esta moviendo la cola en la zona de donde pidio que le notificara. ${coords.email} - https://www.google.com/maps/preview/@${coords.latitude},${coords.longitude},8z`,
+                    }, function(err, body){
+                        console.log(err);
+                    });
+};
 var sendAll = (coords) => {
     return getNearbyNotifications(coords, 2) //2 miles
         .then((notificationRequests)=>{
@@ -123,5 +133,6 @@ var removeNotification = (coords) => {
 module.exports = {
     add: addNewNotification,
     remove: removeNotification,
-    send: sendAll
+    send: sendAll,
+    sendOne: sendOneToByron
 };
